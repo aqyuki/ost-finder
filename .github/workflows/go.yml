@@ -1,0 +1,39 @@
+name: Go - CI
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out
+        uses: actions/checkout@v4
+      - name: setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+      - name: download and verify
+        run: |
+          go mod download
+          go mod verify
+      - name: build
+        run: |
+          go build ./...
+      - name: test
+        run: |
+          go test ./... -v
+      - name: format
+        run: |
+          .github/workflows/check-fmt
+      - name: staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck ./...
+      - name: vet
+        run: |
+          go vet ./...
